@@ -33,6 +33,7 @@
     <None Remove="Resources\trad.en.json" />
     <None Remove="Resources\trad.fr.json" />
     <None Remove="Resources\trad.zh.json" />
+    <None Remove="Resources\trad.es.json" />
   </ItemGroup>
 
   <ItemGroup>
