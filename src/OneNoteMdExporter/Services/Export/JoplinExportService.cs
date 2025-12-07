@@ -69,7 +69,7 @@ namespace alxnbl.OneNoteMdExporter.Services.Export
             Log.Information(string.Format(Localizer.GetString("FoundXSectionsAndSecGrp"), sections.Count));
 
             // Phase 1: Build complete tree and collect metadata
-            Log.Information("Phase 1: Building notebook tree and collecting metadata...");
+            Log.Information(Localizer.GetString("NotebookProcessingStartingPhase1"));
             var allNodes = new List<Node>(); // Will contain both sections and pages
             var allPages = new List<Page>();
 
@@ -86,7 +86,7 @@ namespace alxnbl.OneNoteMdExporter.Services.Export
                     if (sectionIdMatch.Success)
                     {
                         var programmaticId = sectionIdMatch.Groups[1].Value;
-                        ConverterService.RegisterSectionMapping(section.OneNoteId, programmaticId, section.GetPath(AppSettings.MdMaxFileLength), section.Title);
+                        ConverterService.RegisterSectionMapping(section.OneNoteId, programmaticId, section.GetAbsolutePath(AppSettings.MdMaxFileLength), section.Title);
                     }
                 }
                 catch (Exception ex)
@@ -104,7 +104,7 @@ namespace alxnbl.OneNoteMdExporter.Services.Export
             }
 
             // Phase 2: Export content and convert to markdown
-            Log.Information("Phase 2: Exporting content and converting to markdown...");
+            Log.Information(Localizer.GetString("NotebookProcessingStartingPhase2"));
 
             // First export all sections (including section groups)
             int cmptSect = 0;

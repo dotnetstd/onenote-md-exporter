@@ -79,7 +79,7 @@ namespace alxnbl.OneNoteMdExporter
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Error communicating with OneNote");
+                Log.Error(Localizer.GetString("ErrorPreventToCommunicateWithOneNote"));
                 Log.Debug("Exception details: {Exception}", ex.ToString());
 
                 if (!opts.NoInput && !opts.IgnoreErrors)
@@ -311,7 +311,7 @@ namespace alxnbl.OneNoteMdExporter
             var logLevel = AppSettings.Debug ? Serilog.Events.LogEventLevel.Debug : Serilog.Events.LogEventLevel.Information;
             
             Log.Logger = new LoggerConfiguration()
-               .MinimumLevel.Is(logLevel)  // Imposta il livello minimo per tutti i sink
+               .MinimumLevel.Is(logLevel)  // Set the minimum level for all sinks
                .WriteTo.File(loggerFilename, restrictedToMinimumLevel: logLevel, outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
                .WriteTo.Console(restrictedToMinimumLevel: logLevel, outputTemplate: "{Message:lj}{NewLine}")
                .CreateLogger();

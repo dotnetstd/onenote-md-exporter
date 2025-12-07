@@ -253,50 +253,65 @@ namespace alxnbl.OneNoteMdExporter.Services
 
             // Match markdown links with onenote:// URLs
             const string regexPattern = @"\[(?<text>[^\]]+)\]\(onenote:(?<url>[^\)]+)\)";
-            const string pageIdPattern = @"page-id=\{([^}]+)\}";
             
             return Regex.Replace(pageTxt, regexPattern, match =>
             {
                 var linkText = match.Groups["text"].Value;
                 var onenoteUrl = match.Groups["url"].Value;
-                
+
                 if (AppSettings.OneNoteLinksHandling == OneNoteLinksHandlingEnum.Remove)
                 {
                     return linkText;
                 }
 
+                // Try to replace OneNote Page link
+
                 // Extract page-id from URL
+                const string pageIdPattern = @"page-id=\{([^}]+)\}";
                 var pageIdMatch = Regex.Match(onenoteUrl, pageIdPattern, RegexOptions.IgnoreCase);
-                if (!pageIdMatch.Success)
+                if (pageIdMatch.Success)
                 {
-                    Log.Debug($"ConvertOneNoteLinks - No page-id found in URL: {onenoteUrl}");
-                    return match.Value;
-                }
-
-                var programmaticId = pageIdMatch.Groups[1].Value;                
-                if (PageMetadata.TryGetValue(programmaticId, out var pageMetadata))
-                {
-                    Log.Debug($"ConvertOneNoteLinks - Found page: {pageMetadata.MdFilePath}, pageId: {programmaticId}");
-                    
-                    // Normalize path to use forward slashes
-                    var normalizedPath = pageMetadata.MdFilePath.Replace('\\', '/');
-
-                    if (AppSettings.OneNoteLinksHandling == OneNoteLinksHandlingEnum.ConvertToWikilink)
-                    {                        
-                        // For Wikilinks, we use the format [[MdFilePath]] or [[MdFilePath|Display Text]]
-                        return linkText == pageMetadata.Title ? 
-                            $"[[{normalizedPath}]]" : 
-                            $"[[{normalizedPath}|{linkText}]]";
-                    }
-                    else // ConvertToMarkdown
+                    var programmaticId = pageIdMatch.Groups[1].Value;
+                    if (PageMetadata.TryGetValue(programmaticId, out var pageMetadata))
                     {
-                        return $"[{linkText}]({normalizedPath}.md)";
+                        Log.Debug($"ConvertOneNoteLinks - Found page: {pageMetadata.MdFilePath}, pageId: {programmaticId}");
+
+                        // Normalize path to use forward slashes
+                        var normalizedPath = pageMetadata.MdFilePath.Replace('\\', '/');
+                        return GetWikiLink(linkText, pageMetadata.Title, normalizedPath);
+                    }
+                    else
+                    {
+                        Log.Debug($"ConvertOneNoteLinks - No link found for pageId: {programmaticId}");
                     }
                 }
 
-                Log.Debug($"ConvertOneNoteLinks - No page found for pageId: {programmaticId}");
-                return match.Value;
+                // Try to replace OneNote Section link
+
+                Log.Debug($"ConvertOneNoteLinks - Link {linkText} removed : {onenoteUrl}");
+                // Link to a section, section group, or any other onenote unsupported link => return link text only
+
+                return linkText;
+
+                
             });
+
+
+            static string GetWikiLink(string linkText, string title, string normalizedPath)
+            {
+                if (AppSettings.OneNoteLinksHandling == OneNoteLinksHandlingEnum.ConvertToWikilink)
+                {
+                    // For Wikilinks, we use the format [[MdFilePath]] or [[MdFilePath|Display Text]]
+                    return linkText == title ?
+                        $"[[{normalizedPath}]]" :
+                        $"[[{normalizedPath}|{linkText}]]";
+                }
+                else // ConvertToMarkdown
+                {
+                    normalizedPath = normalizedPath.Replace(" ", "%20");
+                    return $"[{linkText}]({normalizedPath}.md)";
+                }
+            }
         }
     }
 }
