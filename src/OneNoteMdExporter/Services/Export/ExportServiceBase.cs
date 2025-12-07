@@ -97,7 +97,7 @@ namespace alxnbl.OneNoteMdExporter.Services.Export
             try
             {
                 OneNoteApp.Instance.GetPageContent(page.OneNoteId, out var xmlPageContentStr, PageInfo.piBinaryDataFileType);
-
+                
                 // Alternative : return page content without binaries
                 //oneNoteApp.GetHierarchy(page.OneNoteId, HierarchyScope.hsChildren, out var xmlAttach);
 
@@ -112,6 +112,49 @@ namespace alxnbl.OneNoteMdExporter.Services.Export
                 // Make various OneNote XML fixes before page export
                 page.OverrideOneNoteId = PageXmlPreProcessing(xmlPageContent);
 
+                // Register page and section mappings for link conversion
+                var pagePath = page.GetPageFileAbsolutePath(AppSettings.MdMaxFileLength);
+                
+                // Generate programmatic ID for the page
+                string pageProgrammaticId = null;
+                try
+                {
+                    OneNoteApp.Instance.GetHyperlinkToObject(page.OneNoteId, null, out string pageLink);
+                    var pageIdMatch = Regex.Match(pageLink, @"page-id=\{([^}]+)\}", RegexOptions.IgnoreCase);
+                    if (pageIdMatch.Success)
+                    {
+                        pageProgrammaticId = pageIdMatch.Groups[1].Value;
+                    }
+
+                    ConverterService.RegisterPageMapping(page.OneNoteId, pageProgrammaticId, pagePath, page.Title);
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning($"Failed to generate programmatic ID for page {page.Title}: {ex.Message}");
+                }
+                
+
+                // Generate programmatic ID for the section
+                string sectionProgrammaticId = null;
+                try
+                {
+                    if (page.Parent?.OneNoteId != null)
+                    {
+                        OneNoteApp.Instance.GetHyperlinkToObject(page.Parent.OneNoteId, null, out string sectionLink);
+                        var sectionIdMatch = Regex.Match(sectionLink, @"section-id=\{([^}]+)\}", RegexOptions.IgnoreCase);
+                        if (sectionIdMatch.Success)
+                        {
+                            sectionProgrammaticId = sectionIdMatch.Groups[1].Value;
+                        }
+
+                        ConverterService.RegisterSectionMapping(page.Parent.OneNoteId, sectionProgrammaticId, page.GetSectionFileAbsolutePath(AppSettings.MdMaxFileLength), page.Parent.Title);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning($"Failed to generate programmatic ID for section {page.Parent?.Title}: {ex.Message}");
+                }
+                
                 var docxFileTmpFile = Path.Combine(GetTmpFolder(page), page.Id + ".docx");
 
                 if (File.Exists(docxFileTmpFile))

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 
 namespace alxnbl.OneNoteMdExporter.Models
 {
@@ -50,9 +51,16 @@ namespace alxnbl.OneNoteMdExporter.Models
         /// </summary>
         public string OverrideOneNoteId { get; set; }
 
-        public string GetPageFileRelativePath(int pageTitleMaxLength)
-        {
-            return Path.Combine(Parent.GetPath(pageTitleMaxLength), TitleWithNoInvalidChars(pageTitleMaxLength));
-        }
+        public string GetPageFileRelativePath(int pageTitleMaxLength) => Path.Combine(Parent.GetPath(pageTitleMaxLength), TitleWithNoInvalidChars(pageTitleMaxLength));
+
+        /// <summary>
+        /// Page path relative to the root of the notebook
+        /// </summary>
+        /// <param name="pageTitleMaxLength"></param>
+        /// <returns></returns>
+        public string GetPageFileAbsolutePath(int pageTitleMaxLength) => string.Concat("\\", GetPageFileRelativePath(pageTitleMaxLength));
+
+        public string GetSectionFileAbsolutePath(int pageTitleMaxLength) => Parent.GetAbsolutePath(pageTitleMaxLength);
+
     }
 }

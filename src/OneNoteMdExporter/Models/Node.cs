@@ -1,4 +1,5 @@
 ﻿using alxnbl.OneNoteMdExporter.Helpers;
+using alxnbl.OneNoteMdExporter.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -50,6 +51,9 @@ namespace alxnbl.OneNoteMdExporter.Models
             else
                 return Path.Combine(Parent.GetPath(pageTitleMaxLength), Title.RemoveInvalidFileNameChars().Left(pageTitleMaxLength));
         }
+
+        public string GetAbsolutePath(int pageTitleMaxLength) => string.Concat("\\", GetPath(pageTitleMaxLength));
+
 
         public int GetLevel()
         {
