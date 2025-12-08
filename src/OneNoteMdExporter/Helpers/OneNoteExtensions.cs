@@ -67,7 +67,7 @@ namespace alxnbl.OneNoteMdExporter.Helpers
                 if (sectionIdMatch.Success)
                 {
                     var programmaticId = sectionIdMatch.Groups[1].Value;
-                    ConverterService.RegisterSectionMapping(section.OneNoteId, programmaticId, section.GetPath(AppSettings.MdMaxFileLength), section.Title);
+                    ConverterService.RegisterSectionMapping(section.OneNoteId, programmaticId, section.GetAbsolutePath(AppSettings.MdMaxFileLength), section.Title);
                 }
             }
             catch (Exception ex)
@@ -109,7 +109,7 @@ namespace alxnbl.OneNoteMdExporter.Helpers
                 if (pageIdMatch.Success)
                 {
                     var programmaticId = pageIdMatch.Groups[1].Value;
-                    ConverterService.RegisterPageMapping(page.OneNoteId, programmaticId, page.GetPageFileRelativePath(AppSettings.MdMaxFileLength), page.Title);
+                    ConverterService.RegisterPageMapping(page.OneNoteId, programmaticId, page.GetPageFileAbsolutePath(AppSettings.MdMaxFileLength), page.Title);
                 }
             }
             catch (Exception ex)

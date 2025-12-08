@@ -82,7 +82,7 @@ namespace alxnbl.OneNoteMdExporter.Services.Export
             Log.Information(String.Format(Localizer.GetString("FoundXSections"), sections.Count));
 
             // Phase 1: Build complete tree and collect metadata
-            Log.Information("Phase 1: Building notebook tree and collecting metadata...");
+            Log.Information(Localizer.GetString("NotebookProcessingStartingPhase1"));
             var allPages = new List<Page>();
             
             // Export each section
@@ -100,7 +100,7 @@ namespace alxnbl.OneNoteMdExporter.Services.Export
             }
 
             // Phase 2: Export content and convert to markdown
-            Log.Information("Phase 2: Exporting content and converting to markdown...");
+            Log.Information(Localizer.GetString("NotebookProcessingStartingPhase2"));
             int cmptPage = 0;
             foreach (Page page in allPages)
             {
